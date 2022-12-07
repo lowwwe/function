@@ -11,6 +11,14 @@
 /// </summary>
 #include <SFML/Graphics.hpp>
 
+enum class  Easing
+{
+	easeLinear,
+	easeInSine
+};
+
+
+
 class Game
 {
 public:
@@ -30,6 +38,22 @@ private:
 	
 	void setupFontAndText();
 	void setupSprite();
+
+	float easingFunction(float t_x);
+	Easing m_currentEasingFunction{ Easing::easeInSine };
+
+
+	void drawEasing();
+	sf::VertexArray m_functionOutline;
+	void functionOutline();
+	void setupAxis(int t_xMax, int t_yMax);
+	void drawAxis();
+	sf::VertexArray m_axis;
+	const float ORIGIN_X = 100.0f;
+	const float ORIGIN_Y = 500.0f;
+	const float SCALEX = 400.0f;
+	const float SCALEY = 400.0f;
+
 
 	sf::RenderWindow m_window; // main SFML window
 	sf::Font m_ArialBlackfont; // font used by message

@@ -6,8 +6,13 @@
 /// you need to change the above lines or lose marks
 /// </summary>
 
+
+#define _USE_MATH_DEFINES
+
+
 #include "Game.h"
 #include <iostream>
+#include <cmath>
 
 
 
@@ -23,6 +28,9 @@ Game::Game() :
 {
 	setupFontAndText(); // load font 
 	setupSprite(); // load texture
+	setupAxis(400, 400);
+	functionOutline();
+	m_currentEasingFunction = Easing::easeInSine;
 }
 
 /// <summary>
@@ -112,8 +120,12 @@ void Game::update(sf::Time t_deltaTime)
 void Game::render()
 {
 	m_window.clear(sf::Color::White);
-	m_window.draw(m_welcomeMessage);
-	m_window.draw(m_logoSprite);
+	//m_window.draw(m_welcomeMessage);
+	//m_window.draw(m_logoSprite);
+	drawEasing();
+	drawAxis();
+
+	
 	m_window.display();
 }
 
@@ -149,4 +161,67 @@ void Game::setupSprite()
 	}
 	m_logoSprite.setTexture(m_logoTexture);
 	m_logoSprite.setPosition(300.0f, 180.0f);
+}
+
+float Game::easingFunction(float t_x)
+{
+	float f_x = 0.0f;
+	switch (m_currentEasingFunction)
+	{
+	case Easing::easeLinear:
+		f_x = t_x;
+		break;
+	case Easing::easeInSine:
+		f_x = 1.0 -  std::cos((t_x * M_PI) / 2.0);
+		f_x = sqrt(1 - (t_x - 1)*(t_x - 1));
+		break;
+
+	default:
+		break;
+	}
+	return f_x;
+}
+
+void Game::drawEasing()
+{
+	m_window.draw(m_functionOutline);
+}
+
+void Game::functionOutline()
+{
+	m_functionOutline.setPrimitiveType(sf::LinesStrip);
+	sf::Vertex point(sf::Vector2f(0, 0), sf::Color(128,0,0,55));
+	const float STEP = 0.01f;
+	float currentX = 0.0f;
+
+	while (currentX <= 1.0)
+	{
+		point.position = sf::Vector2f(currentX * SCALEX  + ORIGIN_X, ORIGIN_Y - easingFunction(currentX)* SCALEY);
+		m_functionOutline.append(point);
+		currentX += STEP;
+	}
+
+}
+
+void Game::setupAxis(int t_xMax, int t_yMax)
+{
+
+	m_axis.setPrimitiveType(sf::Lines);
+	sf::Vertex point(sf::Vector2f(0, 0), sf::Color::Black);
+
+	point.position = sf::Vector2f(ORIGIN_X, ORIGIN_Y);
+	m_axis.append(point);
+	point.position = sf::Vector2f(ORIGIN_X + t_xMax, ORIGIN_Y);
+	m_axis.append(point);
+
+	point.position = sf::Vector2f(ORIGIN_X, ORIGIN_Y);
+	m_axis.append(point);
+	point.position = sf::Vector2f(ORIGIN_X, ORIGIN_Y - t_yMax);
+	m_axis.append(point);
+
+}
+
+void Game::drawAxis()
+{
+	m_window.draw(m_axis);
 }
